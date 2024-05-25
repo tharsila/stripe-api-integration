@@ -14,9 +14,12 @@ datasource db {
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
+  id    String  @id @default(uuid())
   name  String?
   email String?
+
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
 
   @@map("users")
 }
