@@ -3,5 +3,6 @@ export const config = {
         publisherKey: process.env.PUBLISHER_KEY,
         secretKey: process.env.SECRET_KEY,
         proPriceID: process.env.PRO_PRICE_ID,
+        webhookSecret: process.env.WEBHOOK_SECRET
     },
 };
