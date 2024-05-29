@@ -5,11 +5,16 @@ import { User } from '../models/user.model';
 const prisma = new PrismaClient();
 
 export class UserRepository {
-    async create(name: string, email: string): Promise<User> {
+    async create(
+        name: string,
+        email: string,
+        stripeCustomerId: string
+    ): Promise<User> {
         const newUser = await prisma.user.create({
             data: {
                 name,
                 email,
+                stripeCustomerId,
             },
         });
 
@@ -21,7 +26,7 @@ export class UserRepository {
         return users;
     }
 
-    async getById(id: number): Promise<User | null> {
+    async getById(id: string): Promise<User | null> {
         const user = await prisma.user.findUnique({
             where: {
                 id,
@@ -32,7 +37,7 @@ export class UserRepository {
     }
 
     async update(
-        id: number,
+        id: string,
         name: string,
         email: string
     ): Promise<User | null> {
@@ -49,10 +54,36 @@ export class UserRepository {
         return updatedUser;
     }
 
-    async remove(id: number): Promise<void> {
+    async remove(id: string): Promise<void> {
         await prisma.user.delete({
             where: {
                 id,
+            },
+        });
+    }
+
+    async findByStripeCustomerId(stripeCustomerId: string) {
+        const user = await prisma.user.findFirst({
+            where: {
+                stripeCustomerId,
+            },
+        });
+
+        return user;
+    }
+
+    async updateStripeFields(
+        id: string,
+        stripeCustomerId: string,
+        stripeSubscriptionId: string,
+        stripeSubscriptionStatus?: string | undefined
+    ) {
+        return await prisma.user.update({
+            where: { id },
+            data: {
+                stripeCustomerId,
+                stripeSubscriptionId,
+                stripeSubscriptionStatus,
             },
         });
     }
