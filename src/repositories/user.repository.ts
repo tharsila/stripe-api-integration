@@ -22,7 +22,20 @@ export class UserRepository {
     }
 
     async getAll(): Promise<User[]> {
-        const users = await prisma.user.findMany();
+        const users = await prisma.user.findMany({
+            include: {
+                _count: {
+                    select: {
+                        Tasks: true,
+                    },
+                },
+                Tasks: {
+                    orderBy: {
+                        createdAt: 'asc'
+                    }
+                },
+            },
+        });
         return users;
     }
 
@@ -84,6 +97,29 @@ export class UserRepository {
                 stripeCustomerId,
                 stripeSubscriptionId,
                 stripeSubscriptionStatus,
+            },
+        });
+    }
+
+    async countUserTasks(id: string): Promise<{
+        id: string;
+        _count: {
+            Tasks: number;
+        };
+    }> {
+        return await prisma.user.findFirst({
+            where: {
+                id,
+            },
+            select: {
+                id: true,
+                stripeSubscriptionId: true,
+                stripeSubscriptionStatus: true,
+                _count: {
+                    select: {
+                        Tasks: true,
+                    },
+                },
             },
         });
     }
