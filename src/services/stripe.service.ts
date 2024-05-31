@@ -21,9 +21,13 @@ export class StripeService {
 
         const createdCustomer = await stripe.customers.create({ email, name });
 
-        //inserir aqui logica para adicionar plano free ao usuario quando criado
+        return createdCustomer;
+    }
 
-        await stripe.subscriptions.create({
+    async createdCustomerSubscription(
+        createdCustomer: Stripe.Customer
+    ): Promise<Stripe.Subscription> {
+        return await stripe.subscriptions.create({
             customer: createdCustomer.id,
             items: [
                 {
