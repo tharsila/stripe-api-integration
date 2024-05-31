@@ -8,9 +8,7 @@ import Stripe from 'stripe';
 /* const userRepository = new UserRepository(); */
 
 export class StripeService {
-    constructor(
-        private readonly userRepository: UserRepository
-    ) {}
+    constructor(private readonly userRepository: UserRepository) {}
 
     async getStripeCustomerByEmail(email: string) {
         const customer = await stripe.customers.list({ email });
@@ -21,7 +19,18 @@ export class StripeService {
         let customer = await this.getStripeCustomerByEmail(email);
         if (customer) return customer;
 
-        return stripe.customers.create({ email, name });
+        const createdCustomer = await stripe.customers.create({ email, name });
+
+        //inserir aqui logica para adicionar plano free ao usuario quando criado
+
+        await stripe.subscriptions.create({
+            customer: createdCustomer.id,
+            items: [
+                {
+                    price: config.stripe.plans.free.freePriceID,
+                },
+            ],
+        });
     }
 
     handleProcessWebhookCheckout = async (event: Stripe.Checkout.Session) => {
@@ -73,15 +82,20 @@ export class StripeService {
         );
     };
 
-    async createCheckoutSession(userId: string, userEmail: string) {
+    async createCheckoutSession(userId: string) {
         try {
-            let customer = await this.createStripeCustomer(userEmail);
+            const userExists = await this.userRepository.getById(userId);
+            if (!userExists) {
+                throw new Error(`User ${userExists} does not exist`);
+            }
+
+            let customer = await this.createStripeCustomer(userExists.email);
 
             const session = await stripe.checkout.sessions.create({
                 payment_method_types: ['card'],
                 line_items: [
                     {
-                        price: config.stripe.proPriceID,
+                        price: config.stripe.plans.pro.proPriceID,
                         quantity: 1,
                     },
                 ],
