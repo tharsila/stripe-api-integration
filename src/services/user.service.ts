@@ -2,6 +2,7 @@
 import { UserRepository } from '../repositories/user.repository';
 import { User } from '../models/user.model';
 import { StripeService } from './stripe.service';
+import { config } from '@/config/config';
 
 /* const userRepository = new UserRepository(); */
 
@@ -21,8 +22,23 @@ export class UserService {
 
     async createUser(data: User): Promise<User> {
         const { name, email } = data;
-        const customer = await this.stripeService.createStripeCustomer(email, name);
-        return await this.userRepository.create(name, email, customer.id);
+        const customer = await this.stripeService.createStripeCustomer(
+            email,
+            name
+        );
+        const subscription =
+            await this.stripeService.createdCustomerSubscription(customer);
+
+        const stripePriceId = config.stripe.plans.free.freePriceID;
+
+        return await this.userRepository.create(
+            name,
+            email,
+            customer.id,
+            subscription.id,
+            subscription.status,
+            stripePriceId
+        );
     }
 
     async updateUser(id: string, data: User): Promise<User | null> {
