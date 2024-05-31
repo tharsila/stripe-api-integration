@@ -7,9 +7,8 @@ class StripeController {
     constructor(private readonly stripeService: StripeService) {}
     async create(req: Request, res: Response) {
         const userId = req.params.userId;
-        const email = req.body.email;
-
-        const checkout = await this.stripeService.createCheckoutSession(userId, email);
+        
+        const checkout = await this.stripeService.createCheckoutSession(userId);
         return res.send(checkout);
     }
 
