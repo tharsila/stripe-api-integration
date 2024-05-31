@@ -21,6 +21,7 @@ model User {
   stripeCustomerId         String?
   stripeSubscriptionId     String?
   stripeSubscriptionStatus String?
+  stripePriceId            String?
 
   Tasks Task[]
 
