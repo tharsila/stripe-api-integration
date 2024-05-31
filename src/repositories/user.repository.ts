@@ -8,13 +8,19 @@ export class UserRepository {
     async create(
         name: string,
         email: string,
-        stripeCustomerId: string
+        stripeCustomerId: string,
+        stripeSubscriptionId: string,
+        stripeSubscriptionStatus: string,
+        stripePriceId: string
     ): Promise<User> {
         const newUser = await prisma.user.create({
             data: {
                 name,
                 email,
                 stripeCustomerId,
+                stripeSubscriptionId,
+                stripeSubscriptionStatus,
+                stripePriceId,
             },
         });
 
@@ -31,8 +37,8 @@ export class UserRepository {
                 },
                 Tasks: {
                     orderBy: {
-                        createdAt: 'asc'
-                    }
+                        createdAt: 'asc',
+                    },
                 },
             },
         });
