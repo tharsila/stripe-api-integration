@@ -93,9 +93,12 @@ export class StripeService {
                 throw new Error(`User ${userExists} does not exist`);
             }
 
+            const stripeSubscriptionId = userExists.stripeSubscriptionId;
+
             let customer = await this.createStripeCustomer(userExists.email);
 
-            const session = await stripe.checkout.sessions.create({
+            // essa sessao é para criar a sessao sem o customer ter alguma assinatura
+            /* const session = await stripe.checkout.sessions.create({
                 payment_method_types: ['card'],
                 line_items: [
                     {
@@ -108,6 +111,37 @@ export class StripeService {
                 customer: customer.id,
                 success_url: 'http://localhost:3001/success.html',
                 cancel_url: 'http://localhost:3001/cancel.html',
+            }); */
+
+            const subscription = await stripe.subscriptionItems.list({
+                subscription: stripeSubscriptionId,
+                limit: 1,
+            });
+
+            // essa sessao é para criar atualizar a assinatura do customer do free para o pro
+            const session = await stripe.billingPortal.sessions.create({
+                customer: customer.id,
+                return_url: 'http://localhost:3001/billing',
+                flow_data: {
+                    type: 'subscription_update_confirm',
+                    after_completion: {
+                        type: 'redirect',
+                        redirect: {
+                            return_url:
+                                'http://localhost:3001/billing?sucess=true',
+                        },
+                    },
+                    subscription_update_confirm: {
+                        subscription: stripeSubscriptionId,
+                        items: [
+                            {
+                                id: subscription.data[0].id,
+                                price: config.stripe.plans.pro.proPriceID,
+                                quantity: 1,
+                            },
+                        ],
+                    },
+                },
             });
 
             return {
