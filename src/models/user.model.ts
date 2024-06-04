@@ -5,4 +5,5 @@ export interface User {
     stripeCustomerId?: string;
     stripeSubscriptionId?: string;
     stripeSubscriptionStatus?: string;
+    stripePriceId?: string;
 }
