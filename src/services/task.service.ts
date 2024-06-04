@@ -3,8 +3,6 @@ import { Task } from '@/models/task.model';
 import { TaskRepository } from '@/repositories/task.repository';
 import { UserRepository } from '@/repositories/user.repository';
 
-/* const userRepository = new UserRepository(); */
-
 export class TaskService {
     constructor(
         private taskRepository: TaskRepository,
@@ -21,27 +19,6 @@ export class TaskService {
 
     async create(userId: string, data: Task): Promise<Task> {
         const { title, description } = data;
-        const userExists = await this.userRepository.getById(userId);
-
-        if (!userExists) {
-            throw new Error(`User ${userExists} does not exist`);
-        }
-
-        const countUserTasks = await this.userRepository.countUserTasks(userId);
-        const hasQuotaAvailable = countUserTasks._count.Tasks < 5;
-        
-        const hasActiveSubscription =
-            !!userExists.stripeSubscriptionId &&
-            userExists.stripeSubscriptionStatus === 'active';
-
-        console.log({
-            hasActiveSubscription,
-            hasQuotaAvailable
-        })
-
-        if (!hasQuotaAvailable && !hasActiveSubscription) {
-            throw new Error('Not quota available. Please upgrade your plan');
-        }
 
         return await this.taskRepository.create(title, description, userId);
     }
