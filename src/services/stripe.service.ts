@@ -31,7 +31,7 @@ export class StripeService {
             customer: createdCustomer.id,
             items: [
                 {
-                    price: config.stripe.plans.free.freePriceID,
+                    price: config.stripe.plans.free.priceId,
                 },
             ],
         });
@@ -59,7 +59,8 @@ export class StripeService {
         await this.userRepository.updateStripeFields(
             userExists.id,
             stripeCustomerId,
-            stripeSubscriptionId
+            stripeSubscriptionId,
+            checkoutStatus
         );
     };
 
@@ -69,6 +70,7 @@ export class StripeService {
         const stripeCustomerId = event.customer as string; // id do cliente dentro do stripe
         const stripeSubscriptionId = event.id as string;
         const stripeSubscriptionStatus = event.status;
+        const stripePriceId = event.items.data[0].price.id;
 
         const userExists = await this.userRepository.findByStripeCustomerId(
             stripeCustomerId
@@ -82,7 +84,8 @@ export class StripeService {
             userExists.id,
             stripeCustomerId,
             stripeSubscriptionId,
-            stripeSubscriptionStatus
+            stripeSubscriptionStatus,
+            stripePriceId
         );
     };
 
@@ -136,7 +139,7 @@ export class StripeService {
                         items: [
                             {
                                 id: subscription.data[0].id,
-                                price: config.stripe.plans.pro.proPriceID,
+                                price: config.stripe.plans.pro.priceId,
                                 quantity: 1,
                             },
                         ],
@@ -162,7 +165,7 @@ export class StripeService {
 
         const signature = req.headers['stripe-signature'] as string;
 
-        let event;
+        let event: Stripe.Event;
         try {
             event = stripe.webhooks.constructEvent(
                 req.body,
