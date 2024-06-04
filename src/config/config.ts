@@ -5,10 +5,16 @@ export const config = {
         webhookSecret: process.env.WEBHOOK_SECRET,
         plans: {
             free: {
-                freePriceID: process.env.FREE_PRICE_ID,
+                priceId: process.env.FREE_PRICE_ID,
+                quota: {
+                    TASKS: 5,
+                }
             },
             pro: {
-                proPriceID: process.env.PRO_PRICE_ID,
+                priceId: process.env.PRO_PRICE_ID,
+                quota: {
+                    TASKS: 100,
+                }
             },
         },
     },
