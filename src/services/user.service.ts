@@ -29,7 +29,7 @@ export class UserService {
         const subscription =
             await this.stripeService.createdCustomerSubscription(customer);
 
-        const stripePriceId = config.stripe.plans.free.freePriceID;
+        const stripePriceId = config.stripe.plans.free.priceId;
 
         return await this.userRepository.create(
             name,
