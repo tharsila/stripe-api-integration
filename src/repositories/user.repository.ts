@@ -95,7 +95,8 @@ export class UserRepository {
         id: string,
         stripeCustomerId: string,
         stripeSubscriptionId: string,
-        stripeSubscriptionStatus?: string | undefined
+        stripeSubscriptionStatus: string,
+        stripePriceId?: string,
     ) {
         return await prisma.user.update({
             where: { id },
@@ -103,6 +104,7 @@ export class UserRepository {
                 stripeCustomerId,
                 stripeSubscriptionId,
                 stripeSubscriptionStatus,
+                stripePriceId
             },
         });
     }
